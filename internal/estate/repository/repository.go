@@ -7,6 +7,7 @@ import (
 	"fmt"
 
 	"github.com/SawitProRecruitment/UserService/generated"
+	"github.com/SawitProRecruitment/UserService/internal/estate/model"
 	"github.com/google/uuid"
 )
 
@@ -22,23 +23,36 @@ func NewRepository(db *sql.DB) EstateRepository {
 	}
 }
 
+func (r *Repository) GetEstateByID(ctx context.Context, estateID uuid.UUID) (output *model.Estate, err error) {
+	output = new(model.Estate)
+
+	query := `SELECT id, width, length FROM estates WHERE id = $1`
+
+	err = r.db.QueryRow(query, estateID).Scan(&output.ID, &output.Width, &output.Length)
+	if err != nil {
+		return nil, errors.New("estate not found")
+	}
+
+	return output, nil
+}
+
 func (r *Repository) GetEstateStats(ctx context.Context, estateID uuid.UUID) (output *generated.EstateStatsResponse, err error) {
 	output = new(generated.EstateStatsResponse)
 
 	query := `
 		SELECT 
 			COUNT(*) AS tree_count,
-			COALESCE(MAX(height), 0) AS max_height,
-			COALESCE(MIN(height), 0) AS min_height,
+			COALESCE(MAX(height), 0) AS max,
+			COALESCE(MIN(height), 0) AS min,
 			COALESCE(
 				percentile_cont(0.5) WITHIN GROUP (ORDER BY height),
 				0
-			) AS median_height
+			) AS median
 		FROM trees
 		WHERE estate_id = $1
 	`
 
-	err = r.db.QueryRow(query, estateID).Scan(&output.Count, &output.MaxHeight, &output.MinHeight, &output.MedianHeight)
+	err = r.db.QueryRow(query, estateID).Scan(&output.Count, &output.Max, &output.Min, &output.Median)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get estate stats: %w", err)
 	}

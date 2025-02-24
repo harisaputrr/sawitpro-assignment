@@ -34,11 +34,12 @@ func main() {
 
 func newServer(db *sql.DB) *server.Server {
 	estateRepository := estateRepository.NewRepository(db)
-	estateUsecase := estateUsecase.NewUsecase(estateRepository)
-	estateHandler := estateHandler.NewHandler(estateUsecase)
-
 	treeRepository := treeRepository.NewRepository(db)
-	treeUsecase := treeUsecase.NewUsecase(treeRepository)
+
+	estateUsecase := estateUsecase.NewUsecase(estateRepository, treeRepository)
+	treeUsecase := treeUsecase.NewUsecase(treeRepository, estateRepository)
+
+	estateHandler := estateHandler.NewHandler(estateUsecase)
 	treeHandler := treeHandler.NewHandler(treeUsecase)
 
 	return server.NewServer(estateHandler, treeHandler)

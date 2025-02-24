@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"time"
 
@@ -59,4 +60,26 @@ func (r *Repository) FindOneTreebyCoordinate(ctx context.Context, estateID uuid.
 		return nil, err
 	}
 	return t, nil
+}
+
+func (r *Repository) FindAllTrees(estateID uuid.UUID) (trees []model.Tree, err error) {
+	query := `SELECT id, estate_id, x, y, height FROM trees WHERE estate_id = $1 ORDER BY x, y`
+
+	rows, err := r.db.Query(query, estateID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		t := new(model.Tree)
+		if err := rows.Scan(&t.ID, &t.EstateID, &t.X, &t.Y, &t.Height); err != nil {
+			return nil, err
+		}
+		trees = append(trees, *t)
+	}
+	if len(trees) == 0 {
+		return nil, errors.New("no trees found")
+	}
+	return trees, nil
 }

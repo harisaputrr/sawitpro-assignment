@@ -10,5 +10,6 @@ import (
 
 type TreeRepository interface {
 	CreateTree(ctx context.Context, estateID uuid.UUID, input generated.CreateTreeRequest) (output *generated.CreateTreeResponse, err error)
+	FindAllTrees(estateID uuid.UUID) (trees []model.Tree, err error)
 	FindOneTreebyCoordinate(ctx context.Context, estateID uuid.UUID, x, y int) (t *model.Tree, err error)
 }

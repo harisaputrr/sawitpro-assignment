@@ -20,6 +20,12 @@ paths:
   /hello:
     get:
       summary: This is just a test endpoint to get you started.
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: integer
       responses:
         '200':
           description: Test return
@@ -48,17 +54,9 @@ paths:
               schema:
                 $ref: "#/components/schemas/CreateEstateResponse"
         '400':
-          description: Invalid input, such as values out of range or incorrect format.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
+          $ref: "#/components/responses/Common400"
         '500':
-          description: Internal Server Error.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
+          $ref: "#/components/responses/Common500"
   /estate/{id}/tree:
     post:
       summary: "Add a tree to a specific estate"
@@ -85,24 +83,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/CreateTreeResponse"
-        "400":
-          description: "Invalid input (e.g., out-of-bounds coordinates, non-integer values, plot already has a tree)"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-        "404":
-          description: "Estate not found"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
+        '400':
+          $ref: "#/components/responses/Common400"
+        '404':
+          $ref: "#/components/responses/Common404"
         '500':
-          description: Internal Server Error.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
+          $ref: "#/components/responses/Common500"
   /estate/{id}/stats:
     get:
       summary: Get Estate Statistics
@@ -124,23 +110,38 @@ paths:
               schema:
                 $ref: '#/components/schemas/EstateStatsResponse'
         '400':
-          description: Bad Request - Invalid estate ID supplied.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
+          $ref: "#/components/responses/Common400"
         '404':
-          description: Estate not found.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
+          $ref: "#/components/responses/Common404"
         '500':
-          description: Internal Server Error.
+          $ref: "#/components/responses/Common500"
+  /estate/{id}/drone-plan:
+    get:
+      summary: Get Drone Plan for Estate
+      description: Retrieve the total drone travel distance for a given estate. Optionally, 
+        if a maximum travel distance is provided, the endpoint will return landing coordinates where the drone should land.
+      operationId: GetEstateDronePlan
+      parameters:
+        - name: id
+          in: path
+          description: Unique identifier for the estate.
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Successfully retrieved drone plan.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/GetEstateDronePlanResponse'
+        '400':
+          $ref: "#/components/responses/Common400"
+        '404':
+          $ref: "#/components/responses/Common404"
+        '500':
+          $ref: "#/components/responses/Common500"
 components:
   schemas:
     HelloResponse:
@@ -165,13 +166,13 @@ components:
         count:
           type: integer
           example: 5
-        max_height:
+        max:
           type: integer
           example: 30
-        min_height:
+        min:
           type: integer
           example: 10
-        median_height:
+        median:
           type: number
           example: 20
     CreateEstateRequest:
@@ -228,3 +229,29 @@ components:
           format: uuid
           description: "UUID of the newly created tree"
           example: "aaaaaa-bbbbbb-cccccc-ddddd"
+    GetEstateDronePlanResponse:
+      type: object
+      properties:
+        distance:
+          type: number
+          format: float
+          example: 1000.0
+  responses:
+    Common400:
+      description: Bad Request - Invalid input.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    Common404:
+      description: Resource not found.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    Common500:
+      description: Internal Server Error.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
