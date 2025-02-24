@@ -1,33 +1,38 @@
 package main
 
 import (
-	"os"
+	"database/sql"
 
 	"github.com/SawitProRecruitment/UserService/generated"
-	"github.com/SawitProRecruitment/UserService/handler"
-	"github.com/SawitProRecruitment/UserService/repository"
-
+	estateHandler "github.com/SawitProRecruitment/UserService/internal/estate/handler"
+	estateRepository "github.com/SawitProRecruitment/UserService/internal/estate/repository"
+	estateUsecase "github.com/SawitProRecruitment/UserService/internal/estate/usecase"
+	"github.com/SawitProRecruitment/UserService/internal/server"
+	"github.com/SawitProRecruitment/UserService/pkg/config"
+	"github.com/SawitProRecruitment/UserService/pkg/database"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
 
 func main() {
+	conf := config.LoadConfig()
+	db := database.NewPostgre(conf)
+
+	server := newServer(db)
+
 	e := echo.New()
 
-	var server generated.ServerInterface = newServer()
+	e.Use(middleware.Logger())
 
 	generated.RegisterHandlers(e, server)
-	e.Use(middleware.Logger())
-	e.Logger.Fatal(e.Start(":1323"))
+
+	e.Logger.Fatal(e.Start(":" + conf.AppPort))
 }
 
-func newServer() *handler.Server {
-	dbDsn := os.Getenv("DATABASE_URL")
-	var repo repository.RepositoryInterface = repository.NewRepository(repository.NewRepositoryOptions{
-		Dsn: dbDsn,
-	})
-	opts := handler.NewServerOptions{
-		Repository: repo,
-	}
-	return handler.NewServer(opts)
+func newServer(db *sql.DB) *server.Server {
+	estateRepository := estateRepository.NewRepository(db)
+	estateUsecase := estateUsecase.NewUsecase(estateRepository)
+	estateHandler := estateHandler.NewHandler(estateUsecase)
+
+	return server.NewServer(estateHandler)
 }

@@ -20,12 +20,6 @@ paths:
   /hello:
     get:
       summary: This is just a test endpoint to get you started.
-      parameters:
-        - name: id
-          in: query
-          required: true
-          schema:
-            type: integer
       responses:
         '200':
           description: Test return
@@ -33,8 +27,27 @@ paths:
             application/json:    
               schema:
                 $ref: "#/components/schemas/HelloResponse"
-        '404':
-          description: Not found
+  /estate:
+    post:
+      summary: Create and store a new estate
+      description: Creates and stores a new palm oil plantation estate in the database.
+        Receives two integers, width and length, representing the number of 10x10m² plots.
+        Both values must be between 1 and 50000.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateEstateRequest"
+      responses:
+        '200':
+          description: Estate successfully created; returns a UUIDv4 string representing the estate.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreateEstateResponse"
+        '400':
+          description: Invalid input, such as values out of range or incorrect format.
           content:
             application/json:
               schema:
@@ -56,3 +69,28 @@ components:
       properties:
         message:
           type: string
+          example: "Invalid request"
+    CreateEstateRequest:
+      type: object
+      properties:
+        width:
+          type: integer
+          minimum: 1
+          maximum: 50000
+          example: 5
+        length:
+          type: integer
+          minimum: 1
+          maximum: 50000
+          example: 10
+      required:
+        - length
+        - width
+    CreateEstateResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: "UUID of the newly created estate"
+          example: "aaaaaa-bbbbbb-cccccc-ddddd"
