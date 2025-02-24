@@ -52,6 +52,43 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+  /estate/{id}/tree:
+    post:
+      summary: "Add a tree to a specific estate"
+      description: "Stores tree data in a given estate with the specified ID."
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: "UUID of the estate where the tree is to be added"
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateTreeRequest"
+      responses:
+        "201":
+          description: "Tree successfully added"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreateTreeResponse"
+        "400":
+          description: "Invalid input (e.g., out-of-bounds coordinates, non-integer values, plot already has a tree)"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: "Estate not found"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 components:
   schemas:
     HelloResponse:
@@ -93,4 +130,34 @@ components:
           type: string
           format: uuid
           description: "UUID of the newly created estate"
+          example: "aaaaaa-bbbbbb-cccccc-ddddd"
+    CreateTreeRequest:
+      type: object
+      properties:
+        x:
+          type: integer
+          minimum: 1
+          maximum: 50000
+          description: "X-coordinate (West-East) of the tree's plot"
+        y:
+          type: integer
+          minimum: 1
+          maximum: 50000
+          description: "Y-coordinate (South-North) of the tree's plot"
+        height:
+          type: integer
+          minimum: 1
+          maximum: 30
+          description: "Height of the tree in meters (1 to 30)"
+      required:
+        - x
+        - y
+        - height
+    CreateTreeResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: "UUID of the newly created tree"
           example: "aaaaaa-bbbbbb-cccccc-ddddd"

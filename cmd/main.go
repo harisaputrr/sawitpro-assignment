@@ -8,6 +8,9 @@ import (
 	estateRepository "github.com/SawitProRecruitment/UserService/internal/estate/repository"
 	estateUsecase "github.com/SawitProRecruitment/UserService/internal/estate/usecase"
 	"github.com/SawitProRecruitment/UserService/internal/server"
+	treeHandler "github.com/SawitProRecruitment/UserService/internal/tree/handler"
+	treeRepository "github.com/SawitProRecruitment/UserService/internal/tree/repository"
+	treeUsecase "github.com/SawitProRecruitment/UserService/internal/tree/usecase"
 	"github.com/SawitProRecruitment/UserService/pkg/config"
 	"github.com/SawitProRecruitment/UserService/pkg/database"
 	"github.com/labstack/echo/v4"
@@ -34,5 +37,9 @@ func newServer(db *sql.DB) *server.Server {
 	estateUsecase := estateUsecase.NewUsecase(estateRepository)
 	estateHandler := estateHandler.NewHandler(estateUsecase)
 
-	return server.NewServer(estateHandler)
+	treeRepository := treeRepository.NewRepository(db)
+	treeUsecase := treeUsecase.NewUsecase(treeRepository)
+	treeHandler := treeHandler.NewHandler(treeUsecase)
+
+	return server.NewServer(estateHandler, treeHandler)
 }
