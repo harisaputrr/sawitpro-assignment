@@ -7,6 +7,7 @@ import (
 	"fmt"
 
 	"github.com/SawitProRecruitment/UserService/generated"
+	"github.com/google/uuid"
 )
 
 type Repository struct {
@@ -19,6 +20,30 @@ func NewRepository(db *sql.DB) EstateRepository {
 		db:    db,
 		table: "estates",
 	}
+}
+
+func (r *Repository) GetEstateStats(ctx context.Context, estateID uuid.UUID) (output *generated.EstateStatsResponse, err error) {
+	output = new(generated.EstateStatsResponse)
+
+	query := `
+		SELECT 
+			COUNT(*) AS tree_count,
+			COALESCE(MAX(height), 0) AS max_height,
+			COALESCE(MIN(height), 0) AS min_height,
+			COALESCE(
+				percentile_cont(0.5) WITHIN GROUP (ORDER BY height),
+				0
+			) AS median_height
+		FROM trees
+		WHERE estate_id = $1
+	`
+
+	err = r.db.QueryRow(query, estateID).Scan(&output.Count, &output.MaxHeight, &output.MinHeight, &output.MedianHeight)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get estate stats: %w", err)
+	}
+
+	return output, nil
 }
 
 func (r *Repository) CreateEstate(ctx context.Context, input generated.CreateEstateRequest) (output *generated.CreateEstateResponse, err error) {

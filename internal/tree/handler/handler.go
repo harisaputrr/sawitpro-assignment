@@ -17,7 +17,7 @@ func NewHandler(treeUsecase usecase.TreeUsecase) *TreeHandler {
 	return &TreeHandler{usecase: treeUsecase}
 }
 
-func (h *TreeHandler) PostTree(ctx echo.Context, estateID uuid.UUID) error {
+func (h *TreeHandler) CreateTree(ctx echo.Context, estateID uuid.UUID) error {
 	var payload generated.CreateTreeRequest
 	if err := ctx.Bind(&payload); err != nil {
 		return ctx.JSON(http.StatusBadRequest, err.Error())

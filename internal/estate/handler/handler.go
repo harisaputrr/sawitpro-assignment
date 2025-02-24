@@ -5,6 +5,7 @@ import (
 
 	"github.com/SawitProRecruitment/UserService/generated"
 	"github.com/SawitProRecruitment/UserService/internal/estate/usecase"
+	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 )
 
@@ -16,7 +17,18 @@ func NewHandler(estateUsecase usecase.EstateUsecase) *EstateHandler {
 	return &EstateHandler{usecase: estateUsecase}
 }
 
-func (h *EstateHandler) PostEstate(ctx echo.Context) error {
+func (h *EstateHandler) GetEstateStats(ctx echo.Context, estateID uuid.UUID) error {
+	result, err := h.usecase.GetEstateStats(ctx.Request().Context(), estateID)
+	if err != nil {
+		return ctx.JSON(http.StatusBadRequest, generated.ErrorResponse{
+			Message: err.Error(),
+		})
+	}
+
+	return ctx.JSON(http.StatusCreated, result)
+}
+
+func (h *EstateHandler) CreateEstate(ctx echo.Context) error {
 	var payload generated.CreateEstateRequest
 	if err := ctx.Bind(&payload); err != nil {
 		return ctx.JSON(http.StatusBadRequest, err.Error())

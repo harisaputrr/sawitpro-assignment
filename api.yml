@@ -33,6 +33,7 @@ paths:
       description: Creates and stores a new palm oil plantation estate in the database.
         Receives two integers, width and length, representing the number of 10x10m² plots.
         Both values must be between 1 and 50000.
+      operationId: CreateEstate
       requestBody:
         required: true
         content:
@@ -52,10 +53,17 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+        '500':
+          description: Internal Server Error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /estate/{id}/tree:
     post:
       summary: "Add a tree to a specific estate"
       description: "Stores tree data in a given estate with the specified ID."
+      operationId: CreateTree
       parameters:
         - name: id
           in: path
@@ -89,6 +97,50 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+        '500':
+          description: Internal Server Error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /estate/{id}/stats:
+    get:
+      summary: Get Estate Statistics
+      description: Retrieve statistics (count, max, min, median height) for trees in a specific estate.
+      operationId: GetEstateStats
+      parameters:
+        - name: id
+          in: path
+          description: Unique identifier for the estate.
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Successfully retrieved estate statistics.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EstateStatsResponse'
+        '400':
+          description: Bad Request - Invalid estate ID supplied.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Estate not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 components:
   schemas:
     HelloResponse:
@@ -106,7 +158,22 @@ components:
       properties:
         message:
           type: string
-          example: "Invalid request"
+          example: "Invalid request/Not Found"
+    EstateStatsResponse:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 5
+        max_height:
+          type: integer
+          example: 30
+        min_height:
+          type: integer
+          example: 10
+        median_height:
+          type: number
+          example: 20
     CreateEstateRequest:
       type: object
       properties:

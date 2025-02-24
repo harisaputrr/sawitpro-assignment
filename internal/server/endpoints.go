@@ -14,10 +14,14 @@ func (s *Server) GetHello(ctx echo.Context) error {
 	})
 }
 
-func (s *Server) PostEstate(ctx echo.Context) error {
-	return s.estateHandler.PostEstate(ctx)
+func (s *Server) GetEstateStats(ctx echo.Context, uuid uuid.UUID) error {
+	return s.estateHandler.GetEstateStats(ctx, uuid)
 }
 
-func (s *Server) PostEstateIdTree(ctx echo.Context, uuid uuid.UUID) error {
-	return s.treeHandler.PostTree(ctx, uuid)
+func (s *Server) CreateEstate(ctx echo.Context) error {
+	return s.estateHandler.CreateEstate(ctx)
+}
+
+func (s *Server) CreateTree(ctx echo.Context, uuid uuid.UUID) error {
+	return s.treeHandler.CreateTree(ctx, uuid)
 }
