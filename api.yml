@@ -129,6 +129,13 @@ paths:
           schema:
             type: string
             format: uuid
+        - name: max_distance
+          in: query
+          description: Optional maximum travel distance (in meters) for the drone.
+          required: false
+          schema:
+            type: integer
+            minimum: 0
       responses:
         '200':
           description: Successfully retrieved drone plan.
@@ -236,6 +243,15 @@ components:
           type: number
           format: float
           example: 1000.0
+        rest:
+          type: object
+          properties:
+            x:
+              type: integer
+              example: 10
+            y:
+              type: integer
+              example: 1
   responses:
     Common400:
       description: Bad Request - Invalid input.

@@ -19,8 +19,8 @@ func (s *Server) GetEstateStats(ctx echo.Context, uuid uuid.UUID) error {
 	return s.estateHandler.GetEstateStats(ctx, uuid)
 }
 
-func (s *Server) GetEstateDronePlan(ctx echo.Context, uuid uuid.UUID) error {
-	return s.estateHandler.GetEstateDronePlan(ctx, uuid)
+func (s *Server) GetEstateDronePlan(ctx echo.Context, uuid uuid.UUID, params generated.GetEstateDronePlanParams) error {
+	return s.estateHandler.GetEstateDronePlan(ctx, uuid, params)
 }
 
 func (s *Server) CreateEstate(ctx echo.Context) error {

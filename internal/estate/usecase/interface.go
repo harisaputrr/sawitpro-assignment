@@ -8,7 +8,7 @@ import (
 )
 
 type EstateUsecase interface {
-	GetEstateDronePlan(ctx context.Context, estateID uuid.UUID) (result *generated.GetEstateDronePlanResponse, err error)
+	GetEstateDronePlan(ctx context.Context, estateID uuid.UUID, params generated.GetEstateDronePlanParams) (result *generated.GetEstateDronePlanResponse, err error)
 	GetEstateStats(ctx context.Context, estateID uuid.UUID) (result *generated.EstateStatsResponse, err error)
 	CreateEstate(ctx context.Context, payload generated.CreateEstateRequest) (result *generated.CreateEstateResponse, err error)
 }

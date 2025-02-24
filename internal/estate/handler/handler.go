@@ -28,8 +28,8 @@ func (h *EstateHandler) GetEstateStats(ctx echo.Context, estateID uuid.UUID) err
 	return ctx.JSON(http.StatusOK, result)
 }
 
-func (h *EstateHandler) GetEstateDronePlan(ctx echo.Context, estateID uuid.UUID) error {
-	result, err := h.usecase.GetEstateDronePlan(ctx.Request().Context(), estateID)
+func (h *EstateHandler) GetEstateDronePlan(ctx echo.Context, estateID uuid.UUID, params generated.GetEstateDronePlanParams) error {
+	result, err := h.usecase.GetEstateDronePlan(ctx.Request().Context(), estateID, params)
 	if err != nil {
 		return ctx.JSON(http.StatusBadRequest, generated.ErrorResponse{
 			Message: err.Error(),
